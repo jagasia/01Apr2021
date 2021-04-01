@@ -1,0 +1,339 @@
+1) Like component	(input/output/ng-content)
+2) custom pipes
+3) ngClass, ngStyle
+4) reactive forms
+5) validations
+
+Task:
+	Create like component and unlike component.
+	WHenever like is clicked, increment the likeCount
+	whenver unlike is clicked, decrement the likeCount
+
+	display the count in parent component.
+
+Hint:
+	use @Output() event emitter to raise event in child component and
+	handle the event in parent component
+
+Customer Pipes:
+	Pipes transform the data into some format
+
+	There are built-in pipes.
+
+	we can also create pipes. They are called as custom pipes.
+
+	{{ 20 | square }}	
+
+the output should be 400
+
+
+but there is no such pipe called square !!!!!
+let's create now
+
+To create a custom pipe
+
+1) a class that implements PipeTransform	(interface) and override the transform (method)
+
+but we dont do like that. we will use
+	ng g pipe square			in this way, all the above mentioned steps are done automatically
+	only thing, we need to write the code in the transform method
+
+
+
+transform(value: unknown, ...args: unknown[]): unknown {
+    return null;
+  }
+
+	{{ 20 | square }}	
+
+the first parameter (value) is the input	(here in example, 20 is the value)
+after the first parameter, there is a rest parameter (param array) (these args are used for further information
+
+{{	1234.5678 | number:1.2-3}}		anything after the colon : is the args 
+
+
+Task:
+	create a custom pipe "cube"
+	this pipe should transform the value into its cube
+	use this pipe in any of the components we have created.
+
+-------------------------------------------------------------
+ngClass and ngStyle
+
+      <p [ngClass]="(20>100)?status:'success'">This is a paragraph</p>
+
+      <p [ngStyle]="{'text-align':(10>20)?'left':'right'}">THis is another paragraph</p>
+
+------------------------------------------------------------------
+Reactive Forms Module
+---------------------
+so far, we have learnt to create forms called as "template driven forms". Template means? HTML code
+Now we are changing the approach to "model driven form" and this is done using "ReactiveForms"
+
+The form is actually represented as an object
+
+1) in app.module.ts
+	we have to import "ReactiveFormsModule"		(remember we added "FormsModule" yesterday?)
+2) inject the form builder into the constructor
+
+consider an entity "Branch"			(CREATE A COMPONENT CALLED BRANCH)
+	there will be a form
+		bid
+		bname
+		bcity
+
+	here, form represents the entity "Branch" (form group)
+		each bid, bname, bcity are the form controls
+
+	form group represents the entire form	(<form>)
+	every control	(input)	is a form control
+
+	In .ts class, decare the form group
+	and in constructor, use form builder to create the form group
+
+What is Form Builder?	how to use it?
+	we can do "Dependency Injection" 
+	in constructor, inject the form builder and use it
+
+import { FormBuilder } from '@angular/forms';
+
+		constructor(private fb:FormBuilder) { }
+
+
+3) declare the  form group in the class
+		branchForm:any;
+ 
+4) in constructor, build the form using fb
+
+this.branchForm=this.fb.group({});		//fb.group accepts a json
+
+continue to define the form controls inside the form group
+---------------complete code----------
+export class BranchComponent implements OnInit {
+
+  branchForm:any;
+
+  constructor(private fb:FormBuilder) 
+  {
+    this.branchForm=this.fb.group({
+      bid:[''],
+      bname:[''],
+      bcity:['']
+    });
+  }
+
+5) Let's create html code now:
+	<form [formGroup]="branchForm">		remember "branchForm" should be declared in .ts file
+
+	</form>
+--------------------complete code-----------
+<form [formGroup]="branchForm">
+Branch Id:
+<input type="text" class="form-control" formControlName="bid">
+Branch Name:
+<input type="text" class="form-control" formControlName="bname">
+Branch City:
+<input type="text" class="form-control" formControlName="bcity"><br>
+<input type="button" value="Add" class="btn btn-success">&nbsp;
+<input type="button" value="Modify" class="btn btn-warning">&nbsp;
+<input type="button" value="Delete" class="btn btn-danger">
+</form>
+
+Task:
+create a reactive form for Branch component
+
+
+
+JSON.stringify()		converts an object to JSON string
+JSON.parse()			converts a JSON string to object
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.ojdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+			</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+
+
+@Entity
+@Table(name="Branch")
+public class Branch {
+	@Id
+	private String bid;
+	private String bname;
+	private String bcity;
+	
+	public Branch() {}
+
+	public Branch(String bid, String bname, String bcity) {
+		super();
+		this.bid = bid;
+		this.bname = bname;
+		this.bcity = bcity;
+	}
+
+	public String getBid() {
+		return bid;
+	}
+
+	public void setBid(String bid) {
+		this.bid = bid;
+	}
+
+	public String getBname() {
+		return bname;
+	}
+
+	public void setBname(String bname) {
+		this.bname = bname;
+	}
+
+	public String getBcity() {
+		return bcity;
+	}
+
+	public void setBcity(String bcity) {
+		this.bcity = bcity;
+	}
+
+	@Override
+	public String toString() {
+		return "Branch [bid=" + bid + ", bname=" + bname + ", bcity=" + bcity + "]";
+	}
+	
+}
+
+--------------------------------------------------------------------------
+1) we will create service in angular project
+	service is also a class that is used to access external world
+
+	how to create service in angular project?
+		ng g s branch
+	(or)
+		ng generate service branch
+
+this will create "branch.service.ts"
+
+	notice that a class decorated by @Injectable() is a service class
+
+	Let us create methods that are going to invoke REST API
+		add
+		modify
+		delete
+		getAllBranches
+		findBranchById
+---------------------------------------------------------------------------------------------------------
+why create a service?
+	why not a class with methods?
+
+the difference made by service is that the service methods are called in "async" fashion
+	so the rest api methods may serve in async manner
+
+the service methods return Observable		(async response)
+	so while calling service methods, we should subscribe
+
+subscribe() method accepts a call back function. That function can be defined there itself as anonymous impl or using lambda
+
+
+FIRST of all, the service should be injected to the constructor of our component
+  constructor(private fb:FormBuilder, private bs:BranchService) 
+  {
+}
+
+I have injected branch service into the constructor. Hence i can use this "bs" anywhere in my current class
+
+
+----------------------------------------------------------------------
+how to call rest api methods from angular service?
+	ans:	use		http client
+
+what is this http client?
+	HttpClientModule	is to be imported in "app.module.ts"
+
+this module contains a component/service called "HttpClient"
+
+in service, we need to inject this http client service so that we can use this service to call rest api
+
+1) app.module.ts
+	import HttpClientModule
+
+import {} from '@angular/common/http';
+HttpClientModule
+
+2) in branch.service.ts
+	in constructor,
+		inject http client 
+import { HttpClient } from '@angular/common/http';
+
+constructor(private http:HttpClient) { }
+
+
+
+
+  getAllBranches()
+  {
+    return this.http.get(this.url);
+  }
+
+
+
+Access to XMLHttpRequest from origin :4200 is blocked by 
+CORS policy
+
+what is CORS?
+	Cross Origin Resource Sharing
+
+solution:
+	in rest controller, we should enable access from :4200
+
+@CrossOrigin(origins = {"http://localhost:4200", "*"})
+
+
+this.bs.getAllBranches().subscribe((data)=>console.log(data));
+.....this is not in the scope of synch method.... do not write outside subscribe
+
+this.bs.getAllBranches().subscribe((data)=>{
+console.log(data);
+
+});
+
+---------------------------------------
+After adding, modifying, deleting,
+the table in the bottom is not refreshing.
+How to refresh?
+
+-----------------------------------------------------
+Task:
+
+iMPLEMENT the validations for the form controls
+
+1) bid should be 6 characters
+2) bid cannot be blank
+
+both validators should be verified separately and appropriate error messages should be displayed
+
+required
+minlength
+maxlength
+
+There are some times, we need to introduce new rules. That is where custom validators help.
+
+What are custom validators?
+	A typescript function is used for validation
+
+example:
+	password and confirm password should be same. Otherwise, the validator should become true
+
